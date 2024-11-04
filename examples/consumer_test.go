@@ -11,15 +11,6 @@ import (
 	"time"
 )
 
-const (
-	network       = "tcp"
-	address       = "请输入 redis 地址"
-	password      = "请输入 redis 密码"
-	topic         = "请输入 topic 名称"
-	consumerGroup = "请输入消费者组名称"
-	consumerID    = "请输入消费者名称"
-)
-
 // 自定义实现的死信队列
 type DemoDeadLetterMailbox struct {
 	do func(msg *redis.MsgEntity)
@@ -38,12 +29,18 @@ func (d *DemoDeadLetterMailbox) Deliver(ctx context.Context, msg *redis.MsgEntit
 }
 
 func Test_Consumer(t *testing.T) {
-	config := &redis.RedisConfig{
+	config := redis.Config{
 		Network:  "tcp",
-		Address:  "127.0.0.1:6379",
+		Address:  "",
 		Password: "",
-		Topic:    "topic_1",
 	}
+	ConsumerConifg := &redis.ConsumerConfig{
+		RedisConfig: config,
+		GroupID:     "",
+		ConsumerID:  "",
+		Topic:       "",
+	}
+
 	client := redis.NewClient(config)
 
 	// 接收到消息后的处理函数
@@ -58,7 +55,7 @@ func Test_Consumer(t *testing.T) {
 	})
 
 	// 构造并启动消费者
-	consumer, err := redmq.NewConsumer(client, topic, consumerGroup, consumerID, callbackFunc,
+	consumer, err := redmq.NewConsumer(client, ConsumerConifg, callbackFunc,
 		// 每条消息最多重试 2 次
 		redmq.WithMaxRetryLimit(2),
 		// 每轮接收消息的超时时间为 2 s

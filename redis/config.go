@@ -3,13 +3,20 @@
 // @Desc
 package redis
 
-type RedisConfig struct {
+type Config struct {
 	Network  string `mapstructure:"network"`  // 网络类型 TCP
 	Address  string `mapstructure:"address"`  // redis地址 ip:port
 	Password string `mapstructure:"password"` // redis密码
-	Topic    string `mapstructure:"topic"`    // topic名称
+	//Topic    string `mapstructure:"topic"`    // topic名称
 }
-type Consumer struct {
-	consumerGroup string //消费者组名称
-	consumerID    string //消费者名称
+type ConsumerConfig struct {
+	RedisConfig Config
+	GroupID     string //消费者组名称
+	ConsumerID  string //消费者名称
+	Topic       string
+}
+
+type ProducerConfig struct {
+	RedisConfig Config
+	Topic       string `mapstructure:"topic"`
 }

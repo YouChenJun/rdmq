@@ -20,21 +20,22 @@ var ErrNoMsg = errors.New("no msg received")
 
 // Client Redis 客户端.
 type Client struct {
-	opts  *ClientOptions
-	pool  *redis.Pool
-	Topic string
+	opts *ClientOptions
+	pool *redis.Pool
+	//Topic string
 }
 
 // NewClient 新建Client并初始化
-func NewClient(config *RedisConfig, opts ...ClientOption) *Client {
+func NewClient(config Config, opts ...ClientOption) *Client {
 	c := Client{
-		Topic: config.Topic,
+		//Topic: producer.Topic,
 		opts: &ClientOptions{
 			network:  config.Network,
 			address:  config.Address,
 			password: config.Password,
 		},
 	}
+
 	for _, opt := range opts {
 		opt(c.opts)
 	}
@@ -44,9 +45,8 @@ func NewClient(config *RedisConfig, opts ...ClientOption) *Client {
 	pool := c.getRedisPool()
 	fmt.Println("pool", pool.TestOnBorrow)
 	return &Client{
-		pool:  pool,
-		opts:  c.opts,
-		Topic: config.Topic,
+		pool: pool,
+		opts: c.opts,
 	}
 }
 

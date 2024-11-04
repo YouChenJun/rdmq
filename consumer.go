@@ -3,7 +3,6 @@ package redmq
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/YouChenJun/redmq/log"
 
 	"github.com/YouChenJun/redmq/redis"
@@ -38,17 +37,16 @@ type Consumer struct {
 	opts *ConsumerOptions
 }
 
-func NewConsumer(client *redis.Client, consumer redis.Consumer, callbackFunc MsgCallback, opts ...ConsumerOption) (*Consumer, error) {
-	fmt.Println(consumer)
+func NewConsumer(client *redis.Client, consumerConfig *redis.ConsumerConfig, callbackFunc MsgCallback, opts ...ConsumerOption) (*Consumer, error) {
 	ctx, stop := context.WithCancel(context.Background())
 	c := Consumer{
 		client:       client,
 		ctx:          ctx,
 		stop:         stop,
 		callbackFunc: callbackFunc,
-		topic:        topic,
-		groupID:      groupID,
-		consumerID:   consumerID,
+		topic:        consumerConfig.Topic,
+		groupID:      consumerConfig.GroupID,
+		consumerID:   consumerConfig.ConsumerID,
 
 		opts: &ConsumerOptions{},
 

@@ -11,19 +11,23 @@ import (
 )
 
 func Test_Producer(t *testing.T) {
-	config := &redis.RedisConfig{
+	config := redis.Config{
 		Network:  "tcp",
-		Address:  "127.0.0.1:6379",
+		Address:  "192.168.8.189:6379",
 		Password: "",
-		Topic:    "topic_1",
+	}
+	producers := &redis.ProducerConfig{
+		RedisConfig: config,
+		Topic:       "",
 	}
 
-	client := redis.NewClient(config)
+	client := redis.NewClient(producers.RedisConfig)
 
 	// 最多保留十条消息
 	producer := redmq.NewProducer(client, redmq.WithMsgQueueLen(10))
+
 	ctx := context.Background()
-	msgID, err := producer.SendMsg(ctx, topic, "test_kk", "test_vv")
+	msgID, err := producer.SendMsg(ctx, producers.Topic, "test_kk", "test_vv")
 	if err != nil {
 		t.Error(err)
 		return

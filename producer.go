@@ -26,18 +26,10 @@ func NewProducer(client *redis.Client, opts ...ProducerOption) *Producer {
 
 // 生产一条消息
 func (p *Producer) SendMsg(ctx context.Context, topic, key, val string) (string, error) {
-	if topic == "" {
-		topic = p.client.Topic
-	}
 	return p.client.XADD(ctx, topic, p.opts.msgQueueLen, key, val)
 }
 
-// 生产一条消息
+// 生产一条消息-JSON
 func (p *Producer) SendJsonMsg(ctx context.Context, topic, key, val string) (string, error) {
-	//获取配置文件中的topic
-	if topic == "" {
-		topic = p.client.Topic
-	}
-	topic = p.client.Topic
 	return p.client.XADDJson(ctx, topic, p.opts.msgQueueLen, key, val)
 }
