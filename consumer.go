@@ -3,9 +3,9 @@ package redmq
 import (
 	"context"
 	"errors"
-	"github.com/YouChenJun/redmq/log"
+	"github.com/YouChenJun/rdmq/log"
 
-	"github.com/YouChenJun/redmq/redis"
+	"github.com/YouChenJun/rdmq/redis"
 )
 
 // 接收到消息后执行的回调函数

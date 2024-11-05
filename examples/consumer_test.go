@@ -5,8 +5,8 @@ package examples
 
 import (
 	"context"
+	"github.com/YouChenJun/rdmq/redis"
 	"github.com/YouChenJun/redmq"
-	"github.com/YouChenJun/redmq/redis"
 	"testing"
 	"time"
 )

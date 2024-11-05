@@ -56,7 +56,7 @@ package examples
 import (
 	"context"
 	"github.com/YouChenJun/redmq"
-	"github.com/YouChenJun/redmq/redis"
+	"github.com/YouChenJun/rdmq/redis"
 	"testing"
 	"time"
 )
@@ -135,7 +135,7 @@ package examples
 import (
 	"context"
 	"github.com/YouChenJun/redmq"
-	"github.com/YouChenJun/redmq/redis"
+	"github.com/YouChenJun/rdmq/redis"
 	"testing"
 )
 
