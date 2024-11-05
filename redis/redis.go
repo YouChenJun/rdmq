@@ -43,7 +43,7 @@ func NewClient(config Config, opts ...ClientOption) *Client {
 	repairClient(c.opts)
 
 	pool := c.getRedisPool()
-	fmt.Println("pool", pool.TestOnBorrow)
+
 	return &Client{
 		pool: pool,
 		opts: c.opts,
