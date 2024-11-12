@@ -44,9 +44,10 @@ func Test_Consumer(t *testing.T) {
 	client := redis.NewClient(config)
 
 	// 接收到消息后的处理函数
-	callbackFunc := func(ctx context.Context, msg *redis.MsgEntity) error {
+	callbackFunc := func(ctx context.Context, msg *redis.MsgEntity) (error, bool) {
 		t.Logf("receive msg, msg id: %s, msg key: %s, msg val: %s", msg.MsgID, msg.Key, msg.Val)
-		return nil
+		// 此处可以设置业务逻辑 是否回复ACK
+		return nil, true
 	}
 
 	// 自定义实现的死信队列

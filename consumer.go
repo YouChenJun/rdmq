@@ -8,8 +8,8 @@ import (
 	"github.com/YouChenJun/rdmq/redis"
 )
 
-// 接收到消息后执行的回调函数
-type MsgCallback func(ctx context.Context, msg *redis.MsgEntity) error
+// 接收到消息后执行的回调函数-此处的bool为判断，如果true则回复ACK
+type MsgCallback func(ctx context.Context, msg *redis.MsgEntity) (error, bool)
 
 // 消费者
 type Consumer struct {
@@ -143,7 +143,7 @@ func (c *Consumer) receivePending() ([]*redis.MsgEntity, error) {
 
 func (c *Consumer) handlerMsgs(ctx context.Context, msgs []*redis.MsgEntity) {
 	for _, msg := range msgs {
-		if err := c.callbackFunc(ctx, msg); err != nil {
+		if err, ok := c.callbackFunc(ctx, msg); ok && err != nil {
 			// 失败计数器累加
 			c.failureCnts[*msg]++
 			continue
