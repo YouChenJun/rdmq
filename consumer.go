@@ -143,19 +143,28 @@ func (c *Consumer) receivePending() ([]*redis.MsgEntity, error) {
 
 func (c *Consumer) handlerMsgs(ctx context.Context, msgs []*redis.MsgEntity) {
 	for _, msg := range msgs {
-		if err, ok := c.callbackFunc(ctx, msg); ok && err != nil {
+		err, ok := c.callbackFunc(ctx, msg)
+		if err != nil {
 			// 失败计数器累加
 			c.failureCnts[*msg]++
 			continue
 		}
+		//if err, ok := c.callbackFunc(ctx, msg); ok && err != nil {
 
-		// callback 执行成功，进行 ack
-		if err := c.client.XACK(ctx, c.topic, c.groupID, msg.MsgID); err != nil {
-			log.ErrorContextf(ctx, "msg ack failed, msg id: %s, err: %v", msg.MsgID, err)
-			continue
+		//}
+		//当回调函数返回的ok为true时，才发送ACK
+		if ok {
+			// callback 执行成功，进行 ack
+			if err := c.client.XACK(ctx, c.topic, c.groupID, msg.MsgID); err != nil {
+				log.ErrorContextf(ctx, "msg ack failed, msg id: %s, err: %v", msg.MsgID, err)
+				continue
+			}
+			// 如果ACK成功，从失败计数器中删除该消息
+			delete(c.failureCnts, *msg)
+		} else {
+			// 如果回调函数返回的ok为false，则不发送ACK
+			log.WarnContextf(ctx, "callback function returned false, msg id: %s, not sending ACK", msg.MsgID)
 		}
-
-		delete(c.failureCnts, *msg)
 	}
 }
 
