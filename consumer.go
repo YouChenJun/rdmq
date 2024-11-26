@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/YouChenJun/rdmq/log"
-
 	"github.com/YouChenJun/rdmq/redis"
+	"time"
 )
 
 // 接收到消息后执行的回调函数-此处的bool为判断，如果true则回复ACK
@@ -32,7 +32,8 @@ type Consumer struct {
 
 	// 各消息累计失败次数
 	failureCnts map[redis.MsgEntity]int
-
+	//消息等待轮询时间
+	waitTime time.Duration
 	// 一些用户自定义的配置
 	opts *ConsumerOptions
 }
@@ -115,10 +116,12 @@ func (c *Consumer) run() {
 		pendingMsgs, err := c.receivePending()
 		if err != nil {
 			log.ErrorContextf(c.ctx, "pending msg received failed, err: %v", err)
+			time.Sleep(c.waitTime * time.Second)
 			continue
 		}
 
 		tctx, _ = context.WithTimeout(c.ctx, c.opts.handleMsgsTimeout)
+		time.Sleep(c.waitTime * time.Second)
 		c.handlerMsgs(tctx, pendingMsgs)
 	}
 }
@@ -163,7 +166,8 @@ func (c *Consumer) handlerMsgs(ctx context.Context, msgs []*redis.MsgEntity) {
 			delete(c.failureCnts, *msg)
 		} else {
 			// 如果回调函数返回的ok为false，则不发送ACK
-			log.WarnContextf(ctx, "callback function returned false, msg id: %s, not sending ACK", msg.MsgID)
+			log.Infof("callback function returned false, msg id: %s, not sending ACK", msg.MsgID)
+			//log.WarnContextf(ctx, "callback function returned false, msg id: %s, not sending ACK", msg.MsgID)
 		}
 	}
 }
