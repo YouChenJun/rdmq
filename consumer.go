@@ -13,29 +13,16 @@ type MsgCallback func(ctx context.Context, msg *redis.MsgEntity) (error, bool)
 
 // 消费者
 type Consumer struct {
-	// consumer 生命周期管理
-	ctx  context.Context
-	stop context.CancelFunc
-
-	// 接收到 msg 时执行的回调函数，由使用方定义
-	callbackFunc MsgCallback
-
-	// redis 客户端，基于 redis 实现 message queue
-	client *redis.Client
-
-	// 消费的 topic
-	topic string
-	// 所属的消费者组
-	groupID string
-	// 当前节点的消费者 id
-	consumerID string
-
-	// 各消息累计失败次数
-	failureCnts map[redis.MsgEntity]int
-	//消息等待轮询时间
-	waitTime time.Duration
-	// 一些用户自定义的配置
-	opts *ConsumerOptions
+	ctx          context.Context // consumer 生命周期管理
+	stop         context.CancelFunc
+	callbackFunc MsgCallback             // 接收到 msg 时执行的回调函数，由使用方定义
+	client       *redis.Client           // redis 客户端，基于 redis 实现 message queue
+	topic        string                  // 消费的 topic
+	groupID      string                  // 所属的消费者组
+	consumerID   string                  // 当前节点的消费者 id
+	failureCnts  map[redis.MsgEntity]int // 各消息累计失败次数
+	waitTime     time.Duration           //消息等待轮询时间
+	opts         *ConsumerOptions        // 一些用户自定义的配置
 }
 
 func NewConsumer(client *redis.Client, consumerConfig *redis.ConsumerConfig, callbackFunc MsgCallback, opts ...ConsumerOption) (*Consumer, error) {
@@ -152,9 +139,6 @@ func (c *Consumer) handlerMsgs(ctx context.Context, msgs []*redis.MsgEntity) {
 			c.failureCnts[*msg]++
 			continue
 		}
-		//if err, ok := c.callbackFunc(ctx, msg); ok && err != nil {
-
-		//}
 		//当回调函数返回的ok为true时，才发送ACK
 		if ok {
 			// callback 执行成功，进行 ack
